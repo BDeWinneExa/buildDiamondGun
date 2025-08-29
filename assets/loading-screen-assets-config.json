@@ -1,0 +1,35 @@
+{
+  "layouts": [
+    {
+      "name": "loading-screen",
+      "url": "./layouts/loading-screen.json?v=0.0.10.1756492436939"
+    }
+  ],
+  "textures": [
+    {
+      "name": "loading",
+      "url": "./images/loading-screen/loading.json?v=0.0.10.1756492436939"
+    }
+  ],
+  "sounds": [],
+  "spine": [
+    {
+      "name": "loading-screen-desktop",
+      "url": "./spine/loading/desktop/diamond_gun.json?v=0.0.10.1756492436939"
+    },
+    {
+      "name": "loading-screen-mobile",
+      "url": "./spine/loading/mobile/diamond_gun.json?v=0.0.10.1756492436939"
+    }
+  ],
+  "fonts": [
+    {
+      "name": "AlbertSans",
+      "url": "./fonts/AlbertSans-Black.woff?v=0.0.10.1756492436939"
+    },
+    {
+      "name": "LongdonDecorative",
+      "url": "./fonts/LongdonDecorative.ttf?v=0.0.10.1756492436939"
+    }
+  ]
+}
