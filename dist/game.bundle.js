@@ -11,187 +11,6 @@
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 7480:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const GLHook_1 = __importDefault(__webpack_require__(7411));
-const TextureHook_1 = __importDefault(__webpack_require__(68035));
-class BaseHooks {
-    constructor() {
-        this._drawCalls = -1;
-        this._maxDeltaDrawCalls = -1;
-    }
-    attach(gl) {
-        this.glhook = new GLHook_1.default(gl);
-        this.texturehook = new TextureHook_1.default(gl);
-    }
-    get drawCalls() {
-        if (this.glhook && this.glhook.isInit) {
-            return this.glhook.drawPasses;
-        }
-        return -1;
-    }
-    get maxDeltaDrawCalls() {
-        return this._maxDeltaDrawCalls;
-    }
-    get deltaDrawCalls() {
-        if (this._drawCalls == -1) {
-            this._drawCalls = this.drawCalls;
-            return 0;
-        }
-        var dc = this.drawCalls;
-        var delta = dc - this._drawCalls;
-        this._drawCalls = dc;
-        this._maxDeltaDrawCalls = Math.max(this._maxDeltaDrawCalls, delta);
-        return delta;
-    }
-    get maxTextureCount() {
-        if (this.texturehook && this.texturehook.isInit)
-            return this.texturehook.maxTexturesCount;
-        return 0;
-    }
-    get texturesCount() {
-        if (this.texturehook && this.texturehook.isInit)
-            return this.texturehook.currentTextureCount;
-        return 0;
-    }
-    reset() {
-        this._maxDeltaDrawCalls = -1;
-        this._drawCalls = -1;
-        if (this.glhook)
-            this.glhook.reset();
-        if (this.texturehook)
-            this.texturehook.reset();
-    }
-    release() {
-        if (this.glhook)
-            this.glhook.release();
-        if (this.texturehook)
-            this.texturehook.release();
-    }
-}
-exports["default"] = BaseHooks;
-//# sourceMappingURL=BaseHooks.js.map
-
-/***/ }),
-
-/***/ 7411:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-class GLHook {
-    constructor(_gl) {
-        this.drawPasses = 0;
-        this.isInit = false;
-        this.realGLDrawElements = function () { };
-        if (_gl) {
-            if (_gl.__proto__.drawElements) {
-                this.gl = _gl;
-                this.realGLDrawElements = _gl.__proto__.drawElements;
-                //replace to new function
-                _gl.__proto__.drawElements = this.fakeGLdrawElements.bind(this);
-                this.isInit = true;
-                console.log("[GLHook] GL was Hooked!");
-            }
-        }
-        else {
-            console.error("[GLHook] GL can't be NULL");
-        }
-    }
-    fakeGLdrawElements(mode, count, type, offset) {
-        this.drawPasses++;
-        this.realGLDrawElements.call(this.gl, mode, count, type, offset);
-    }
-    reset() {
-        this.drawPasses = 0;
-    }
-    release() {
-        if (this.isInit) {
-            this.gl.__proto__.drawElements = this.realGLDrawElements;
-            console.log("[GLHook] Hook was removed!");
-        }
-        this.isInit = false;
-    }
-}
-exports["default"] = GLHook;
-//# sourceMappingURL=GLHook.js.map
-
-/***/ }),
-
-/***/ 68035:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-class TextureHook {
-    constructor(_gl) {
-        this.createdTextures = new Array();
-        this.maxTexturesCount = 0;
-        this.isInit = false;
-        this.realGLCreateTexture = function () { };
-        this.realGLDeleteTexture = function () { };
-        if (_gl) {
-            if (_gl.__proto__.createTexture) {
-                this.gl = _gl;
-                this.realGLCreateTexture = _gl.__proto__.createTexture;
-                this.realGLDeleteTexture = _gl.__proto__.deleteTexture;
-                //replace to new function
-                _gl.__proto__.createTexture = this.fakeGLCreateTexture.bind(this);
-                _gl.__proto__.deleteTexture = this.fakeGLDeleteTexture.bind(this);
-                this.isInit = true;
-                console.log("[TextureHook] GL was Hooked!");
-            }
-        }
-        else {
-            console.error("[TextureHook] GL can't be NULL");
-        }
-    }
-    get currentTextureCount() {
-        return this.createdTextures.length;
-    }
-    registerTexture(texture) {
-        this.createdTextures.push(texture); // ++;
-        this.maxTexturesCount = Math.max(this.createdTextures.length, this.maxTexturesCount);
-    }
-    fakeGLCreateTexture() {
-        var texture = this.realGLCreateTexture.call(this.gl);
-        this.registerTexture(texture);
-        return texture;
-    }
-    fakeGLDeleteTexture(texture) {
-        var index = this.createdTextures.indexOf(texture);
-        if (index > -1) {
-            this.createdTextures.splice(index, 1);
-        }
-        this.realGLDeleteTexture.call(this.gl, texture);
-    }
-    reset() {
-        this.createdTextures = new Array();
-        this.maxTexturesCount = 0;
-    }
-    release() {
-        if (this.isInit) {
-            this.gl.__proto__.createTexture = this.realGLCreateTexture;
-            this.gl.__proto__.deleteTexture = this.realGLDeleteTexture;
-            console.log("[TextureHook] Hook was removed!");
-        }
-        this.isInit = false;
-    }
-}
-exports["default"] = TextureHook;
-//# sourceMappingURL=TextureHook.js.map
-
-/***/ }),
-
 /***/ 50637:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
@@ -64197,285 +64016,6 @@ Object.keys(base).forEach(function (k) {
 
 /***/ }),
 
-/***/ 59340:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(99231), exports);
-__exportStar(__webpack_require__(37660), exports);
-__exportStar(__webpack_require__(18495), exports);
-__exportStar(__webpack_require__(44459), exports);
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 99231:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GRAPH_HEIGHT = exports.GRAPH_WIDTH = exports.GRAPH_Y = exports.FONT_SIZE = exports.GRAPH_X = exports.TEXT_Y = exports.TEXT_X = exports.HEIGHT = exports.WIDTH = exports.PR = void 0;
-exports.PR = 4;
-exports.WIDTH = 50 * exports.PR;
-exports.HEIGHT = 30 * exports.PR;
-exports.TEXT_X = 7;
-exports.TEXT_Y = 7;
-exports.GRAPH_X = exports.TEXT_X;
-exports.FONT_SIZE = 20; // tested @ 120.0 FPS (120~120)
-exports.GRAPH_Y = exports.FONT_SIZE + exports.TEXT_Y;
-exports.GRAPH_WIDTH = exports.WIDTH - exports.GRAPH_X * 2;
-exports.GRAPH_HEIGHT = exports.HEIGHT - exports.GRAPH_X - exports.GRAPH_Y;
-//# sourceMappingURL=stats-constants.js.map
-
-/***/ }),
-
-/***/ 44459:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.PIXIHooks = exports.StatsJSAdapter = void 0;
-const BaseHooks_1 = __importDefault(__webpack_require__(7480));
-const stats_panel_1 = __webpack_require__(37660);
-class StatsJSAdapter {
-    constructor(hook, stats) {
-        this.hook = hook;
-        if (stats) {
-            this.stats = stats;
-        }
-        else if (window.Stats) {
-            this.stats = new window.Stats();
-        }
-        if (this.stats) {
-            this.dcPanel = this.stats.addPanel(new stats_panel_1.Panel('DC', '#f60', '#300'));
-            this.tcPanel = this.stats.addPanel(new stats_panel_1.Panel('TC', '#0c6', '#033'));
-            this.stats.showPanel(0);
-        }
-        else {
-            throw new Error("Stats can't found in window, pass instance of Stats.js as second param");
-        }
-    }
-    update() {
-        if (this.stats) {
-            if (this.hook) {
-                this.dcPanel.update(this.hook.deltaDrawCalls, Math.max(50, this.hook.maxDeltaDrawCalls));
-                this.tcPanel.update(this.hook.texturesCount, Math.max(20, this.hook.maxTextureCount));
-            }
-            this.stats.update();
-        }
-    }
-    reset() {
-        if (this.hook)
-            this.hook.reset();
-    }
-}
-exports.StatsJSAdapter = StatsJSAdapter;
-class PIXIHooks extends BaseHooks_1.default {
-    constructor(app) {
-        super();
-        if (!app) {
-            console.error('[PIXI Hooks] missing PIXI.Application');
-            return;
-        }
-        const renderer = app.renderer;
-        if (renderer.gl) {
-            this.attach(renderer.gl);
-            // const startTextures = renderer.texture.managedTextures;
-            const glTextures = renderer.texture._glTextures;
-            if (!glTextures || !this.texturehook) {
-                console.error('[PIXI Hooks] !glTextures || !this.texturehook');
-            }
-            else {
-                console.log('[PIXI Hooks] Collect used textures:', glTextures.length);
-                // for (let i = 0; i < startTextures.length; i++) {
-                //   const txr = startTextures[i];
-                Object.values(glTextures).forEach((glTexture) => {
-                    if (glTexture.gl === renderer.gl) {
-                        this.texturehook.registerTexture(glTexture.texture);
-                    }
-                });
-                // }
-            }
-        }
-        else {
-            console.error('[PIXI Hook] Canvas renderer is not allowed');
-        }
-    }
-}
-exports.PIXIHooks = PIXIHooks;
-//# sourceMappingURL=stats-gl.js.map
-
-/***/ }),
-
-/***/ 37660:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Panel = void 0;
-const stats_constants_1 = __webpack_require__(99231);
-class Panel {
-    constructor(name, fg, bg) {
-        this.values = [];
-        this.snapshotSize = 30; // min~max of X frames total
-        const canvas = document.createElement('canvas');
-        canvas.width = stats_constants_1.WIDTH;
-        canvas.height = stats_constants_1.HEIGHT;
-        const context = canvas.getContext('2d');
-        if (!context) {
-            throw new Error('Cant get context on canvas');
-        }
-        context.font = `bold ${stats_constants_1.FONT_SIZE}px ${getComputedStyle(document.body).fontFamily}`;
-        context.textBaseline = 'top';
-        context.fillStyle = bg;
-        context.fillRect(0, 0, stats_constants_1.WIDTH, stats_constants_1.HEIGHT);
-        context.fillStyle = fg;
-        context.fillText(name, stats_constants_1.TEXT_X, stats_constants_1.TEXT_Y);
-        context.fillRect(stats_constants_1.GRAPH_X, stats_constants_1.GRAPH_Y, stats_constants_1.GRAPH_WIDTH, stats_constants_1.GRAPH_HEIGHT);
-        context.fillStyle = bg;
-        context.globalAlpha = 0.8;
-        context.fillRect(stats_constants_1.GRAPH_X, stats_constants_1.GRAPH_Y, stats_constants_1.GRAPH_WIDTH, stats_constants_1.GRAPH_HEIGHT);
-        this.name = name;
-        this.dom = canvas;
-        this.context = context;
-        this.fg = fg;
-        this.bg = bg;
-    }
-    get min() {
-        return this.values
-            .reduce((min, value) => Math.min(min, value), Infinity)
-            .toFixed();
-    }
-    get max() {
-        return this.values.reduce((max, value) => Math.max(max, value), 0).toFixed();
-    }
-    get averageValue() {
-        return (this.values.reduce((sum, value) => sum + value, 0) / this.values.length).toFixed(1);
-    }
-    pushValue(value) {
-        this.values.push(value);
-        if (this.values.length > this.snapshotSize) {
-            this.values = this.values.slice(-this.snapshotSize);
-        }
-    }
-    update(value, maxValue) {
-        const context = this.context;
-        this.pushValue(value);
-        context.fillStyle = this.bg;
-        context.globalAlpha = 1;
-        context.fillRect(0, 0, stats_constants_1.WIDTH, stats_constants_1.GRAPH_Y);
-        context.fillStyle = this.fg;
-        context.font = `bold ${stats_constants_1.FONT_SIZE}px ${getComputedStyle(document.body).fontFamily}`;
-        context.fillText(`${this.averageValue} ${this.name} (${this.min}-${this.max})`, stats_constants_1.TEXT_X, stats_constants_1.TEXT_Y);
-        context.drawImage(this.dom, stats_constants_1.GRAPH_X + stats_constants_1.PR, stats_constants_1.GRAPH_Y, stats_constants_1.GRAPH_WIDTH - stats_constants_1.PR, stats_constants_1.GRAPH_HEIGHT, stats_constants_1.GRAPH_X, stats_constants_1.GRAPH_Y, stats_constants_1.GRAPH_WIDTH - stats_constants_1.PR, stats_constants_1.GRAPH_HEIGHT);
-        context.fillRect(stats_constants_1.GRAPH_X + stats_constants_1.GRAPH_WIDTH - stats_constants_1.PR, stats_constants_1.GRAPH_Y, stats_constants_1.PR, stats_constants_1.GRAPH_HEIGHT);
-        context.fillStyle = this.bg;
-        context.globalAlpha = 0.8;
-        context.fillRect(stats_constants_1.GRAPH_X + stats_constants_1.GRAPH_WIDTH - stats_constants_1.PR, stats_constants_1.GRAPH_Y, 2 * stats_constants_1.PR, Math.round((1 - value / maxValue) * stats_constants_1.GRAPH_HEIGHT));
-    }
-}
-exports.Panel = Panel;
-//# sourceMappingURL=stats-panel.js.map
-
-/***/ }),
-
-/***/ 18495:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Stats = void 0;
-exports.addStats = addStats;
-const stats_gl_1 = __webpack_require__(44459);
-const stats_panel_1 = __webpack_require__(37660);
-class Stats {
-    constructor() {
-        this.setMode = this.showPanel;
-        this.mode = 0;
-        this.domElement = document.createElement('div');
-        this.domElement.id = 'stats';
-        this.domElement.addEventListener('click', (event) => {
-            event.preventDefault();
-            this.showPanel(++this.mode % this.domElement.children.length);
-        }, false);
-        this.beginTime = (performance || Date).now();
-        this.prevTime = this.beginTime;
-        this.frames = 0;
-        this.fpsPanel = this.addPanel(new Stats.Panel('FPS', '#3ff', '#002'));
-        this.msPanel = this.addPanel(new Stats.Panel('MS', '#0f0', '#020'));
-        if (performance && performance.memory) {
-            this.memPanel = this.addPanel(new Stats.Panel('MB', '#f08', '#200'));
-        }
-    }
-    addPanel(panel) {
-        this.domElement.appendChild(panel.dom);
-        return panel;
-    }
-    showPanel(id) {
-        for (let index = 0; index < this.domElement.children.length; index++) {
-            const element = this.domElement.children[index];
-            element.style.display = index === id ? 'block' : 'none';
-        }
-        this.mode = id;
-    }
-    begin() {
-        this.beginTime = (performance || Date).now();
-    }
-    end() {
-        this.frames++;
-        const time = (performance || Date).now();
-        this.msPanel.update(time - this.beginTime, 200);
-        if (time > this.prevTime + 1000) {
-            this.fpsPanel.update((this.frames * 1000) / (time - this.prevTime), 100);
-            this.prevTime = time;
-            this.frames = 0;
-            if (this.memPanel) {
-                const memory = performance.memory;
-                this.memPanel.update(memory.usedJSHeapSize / 1048576, memory.jsHeapSizeLimit / 1048576);
-            }
-        }
-        return time;
-    }
-    update() {
-        this.beginTime = this.end();
-    }
-}
-exports.Stats = Stats;
-Stats.Panel = stats_panel_1.Panel;
-function addStats(document, app) {
-    const stats = new Stats();
-    const pixiHooks = new stats_gl_1.PIXIHooks(app);
-    const adapter = new stats_gl_1.StatsJSAdapter(pixiHooks, stats);
-    document.body.appendChild(adapter.stats.domElement);
-    return adapter;
-}
-//# sourceMappingURL=stats.js.map
-
-/***/ }),
-
 /***/ 39761:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
@@ -66520,7 +66060,7 @@ class DiamondGun extends BrowserApplication_1.BrowserApplication {
         new ControlEvent_1.default(ApplicationEvent_1.ApplicationEvent.LOADING_COMPLETE).dispatch();
     }
     onSlotMachineStateChanged(currentState, previousState) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
         console.log('onSlotMachineStateChanged', currentState, previousState);
         switch (currentState) {
             case SlotMachineState_1.SlotMachineState.IDLE:
@@ -66641,7 +66181,7 @@ class DiamondGun extends BrowserApplication_1.BrowserApplication {
                 });
                 break;
             case SlotMachineState_1.SlotMachineState.FREE_SPINS_ROUND_END:
-                this.popupManager.show(((_q = this.popupFreespinsWinningHorizontal) !== null && _q !== void 0 ? _q : (this.popupFreespinsWinningHorizontal = new PopupFreeSpinWinning_1.default(this.slotMachine.roundResult.totalWinValue, 1, true, this.slotMachine.currentSpinResult.freespins.totalCount))), ((_r = this.popupFreespinsWinningVertical) !== null && _r !== void 0 ? _r : (this.popupFreespinsWinningVertical = new PopupFreeSpinWinning_1.default(this.slotMachine.roundResult.totalWinValue, 1, true, this.slotMachine.currentSpinResult.freespins.totalCount))), -1, true, {
+                this.popupManager.show((this.popupFreespinsWinningHorizontal = new PopupFreeSpinWinning_1.default(this.slotMachine.roundResult.totalWinValue, 1, true, this.slotMachine.currentSpinResult.freespins.totalCount)), (this.popupFreespinsWinningVertical = new PopupFreeSpinWinning_1.default(this.slotMachine.roundResult.totalWinValue, 1, true, this.slotMachine.currentSpinResult.freespins.totalCount)), -1, true, {
                     onPopupHidden: () => {
                         var _a, _b;
                         (_a = this.mainGameScreen.transitionDesktop) === null || _a === void 0 ? void 0 : _a.setTransition('transition').then(() => { new ControlEvent_1.default(SlotGameEvent_1.SlotGameEvent.FREE_SPIN_ROUND_COMPLETE).dispatch(); });
@@ -70235,6 +69775,7 @@ let MainGameScreen = class MainGameScreen extends AdjustableLayoutContainer_1.de
         let gameSpeedLevel;
         switch (currentState) {
             case SlotMachineState_1.SlotMachineState.SPINNING:
+                this.reelHeader.setHeader(0);
                 if (((_a = sm.previousRoundResult) === null || _a === void 0 ? void 0 : _a.nextType) === TransactionType_1.TransactionType.REGULAR)
                     this.reels.removeMultipliers();
                 this.currentLineWinIndex = -1;
@@ -70292,8 +69833,7 @@ let MainGameScreen = class MainGameScreen extends AdjustableLayoutContainer_1.de
                 else {
                     // this.totalWinFrameMobile.setValue(sm.currentSpinResult.currentTotalWinValue, true);
                 }
-                // if (sm.currentSpinResult.winValue && sm.currentSpinResult.winValue > 0)
-                //     this.reelHeader.setHeader(sm.currentSpinResult.winValue, true);
+                this.reelHeader.setHeader(sm.currentSpinResult.currentTotalWinValue, true);
                 break;
             case SlotMachineState_1.SlotMachineState.SPIN_RESULT_SCATTER:
                 this.showScatterWin();
@@ -70334,6 +69874,7 @@ let MainGameScreen = class MainGameScreen extends AdjustableLayoutContainer_1.de
                 this.winMsgCheck = 0;
                 this.uiPanelMobileVertical.unlock();
                 this.uiPanelDesktop.unlock();
+                this.reelHeader.setHeader(0);
                 break;
         }
     }
@@ -70562,7 +70103,7 @@ class ReelHeader extends pixi_js_1.Container {
             return;
         if (value <= 0)
             return;
-        //To fix the issue when previous tween is not finished yet
+        // Ensure previous tween finishes before starting a new one
         if (engineTween_1.Tweener.isTweening(this.tfCurrentWinValue)) {
             engineTween_1.Tweener.removeTweens(this.tfCurrentWinValue);
             this.tfCurrentWinValue.value = value;
@@ -70572,7 +70113,7 @@ class ReelHeader extends pixi_js_1.Container {
             this.tfCurrentWinValue.value = 0;
         }
         this.tfCurrentWinValue.setValue(value, {
-            countUpDuration: 1
+            countUpDuration: 1.5,
         });
         if (!shake)
             return;
@@ -70581,8 +70122,8 @@ class ReelHeader extends pixi_js_1.Container {
             volume: 0.35,
         });
         engineTween_1.Tweener.addTween(this.tfCurrentWinValue.scale, {
-            x: 1.15,
-            y: 1.15,
+            x: 1,
+            y: 1,
             transition: 'easeOutSine',
             time: 0.35,
             onComplete: () => {
@@ -70590,11 +70131,10 @@ class ReelHeader extends pixi_js_1.Container {
                     x: 1,
                     y: 1,
                     transition: 'easeOutElastic',
-                    time: 0.3
+                    time: 0.3,
                 });
-                if (this.loopedSound)
-                    this.loopedSound.stop();
-            }
+                this.loopedSound.stop();
+            },
         });
     }
 }
@@ -71585,8 +71125,8 @@ class ButtonSpinAnimation extends pixi_spine_1.Spine {
      */
     updateSpineAnims() {
         ButtonSpinAnimation.SPIN = this.getAnimationName('spin_click');
-        ButtonSpinAnimation.WAIT_DELAY = this.getAnimationName('spin_Idle');
-        ButtonSpinAnimation.WAIT_DELAY_INTRO = this.getAnimationName('spin_Idle');
+        ButtonSpinAnimation.WAIT_DELAY = this.getAnimationName('spin_idle');
+        ButtonSpinAnimation.WAIT_DELAY_INTRO = this.getAnimationName('spin_idle');
         this.setAnimation(ButtonSpinAnimation.WAIT_DELAY);
     }
     /**
@@ -71624,8 +71164,8 @@ ButtonSpinAnimation.SPIN = 'spin_click';
 ButtonSpinAnimation.LOOP = 'stop_idle';
 ButtonSpinAnimation.STOP = 'stop_idle';
 ButtonSpinAnimation.WAIT = 'wait';
-ButtonSpinAnimation.WAIT_DELAY = 'spin_Idle';
-ButtonSpinAnimation.WAIT_DELAY_INTRO = 'spin_Idle';
+ButtonSpinAnimation.WAIT_DELAY = 'spin_idle';
+ButtonSpinAnimation.WAIT_DELAY_INTRO = 'spin_idle';
 exports["default"] = ButtonSpinAnimation;
 
 
@@ -74678,7 +74218,7 @@ const SoundManager_1 = __importDefault(__webpack_require__(6881));
 const SoundList_1 = __importDefault(__webpack_require__(27310));
 class PaytablePanelDesktop extends Panel_1.default {
     constructor(configuration) {
-        super(AssetsManager_1.default.layouts.get('PaytablePanelDesktop'));
+        super(AssetsManager_1.default.layouts.get('paytableLandscape'));
         this.symbolCells = [];
         this.pages = [];
         this.currentPage = null;
@@ -74860,7 +74400,7 @@ const MetricsView_1 = __importDefault(__webpack_require__(35498));
 const SwitchView_1 = __importDefault(__webpack_require__(76473));
 class PaytablePanelMobile extends Panel_1.default {
     constructor(configuration) {
-        super(AssetsManager_1.default.layouts.get('paytablePortait'));
+        super(AssetsManager_1.default.layouts.get('paytablePortrait'));
         this.symbolCells = [];
         this.pages = [];
         // LayoutBuilder.create(this.layout, this, (le)=>{
@@ -75060,17 +74600,9 @@ class PaytableSymbolCell extends pixi_js_1.Container {
         const staticIcon = new pixi_js_1.Sprite(symbolData.staticIcon.texture);
         staticIcon.anchor.set(0.5, 0.5);
         this.staticIcon.addChild(staticIcon);
-        this.tfPays15 = this['multiplierDescription']['tfPays15'];
-        this.tfPays14 = this['multiplierDescription']['tfPays14'];
-        this.tfPays13 = this['multiplierDescription']['tfPays13'];
-        this.tfPays12 = this['multiplierDescription']['tfPays12'];
-        this.tfPays11 = this['multiplierDescription']['tfPays11'];
-        this.tfPays10 = this['multiplierDescription']['tfPays10'];
-        this.tfPays9 = this['multiplierDescription']['tfPays9'];
-        this.tfPays8 = this['multiplierDescription']['tfPays8'];
-        this.tfPays7 = this['multiplierDescription']['tfPays7'];
         this.tfPays6 = this['multiplierDescription']['tfPays6'];
         this.tfPays5 = this['multiplierDescription']['tfPays5'];
+        this.tfPays4 = this['multiplierDescription']['tfPays4'];
         if (this.config.setMultipliers)
             this.setMultipliers(symbolData.id);
         else
@@ -75078,15 +74610,15 @@ class PaytableSymbolCell extends pixi_js_1.Container {
     }
     updateView(maxWidth = null, texts = null) {
         // const texts: Text[] =  this['multiplierDescription'].children as Text[];
-        [this.tfPays5, this.tfPays6, this.tfPays7, this.tfPays8, this.tfPays9, this.tfPays10, this.tfPays11, this.tfPays12, this.tfPays13, this.tfPays14, this.tfPays15].forEach((text) => {
+        [this.tfPays4, this.tfPays5, this.tfPays6].forEach((text) => {
             (0, Utils_1.autoscaleText)(text, this.config.maxFontSize, this.config.maxWidth, this.config.maxHeight);
         });
         const offset = 12;
         const totalWidth = maxWidth ? maxWidth : this.width;
-        for (let i = 0; i < 11; i++) {
-            texts[i].x = (totalWidth - (texts[i].width + offset + texts[i + 11].width)) / 2;
+        for (let i = 0; i < 3; i++) {
+            texts[i].x = (totalWidth - (texts[i].width + offset + texts[i + 3].width)) / 2;
             const posX = texts[i].x + texts[i].width + offset;
-            texts[i + 11].x = posX + texts[i + 11].width;
+            texts[i + 3].x = posX;
         }
     }
     get width() {
@@ -75098,17 +74630,9 @@ class PaytableSymbolCell extends pixi_js_1.Container {
     setMultipliers(symbolId) {
         const sm = tsyringe_1.container.resolve(SlotMachine_1.default);
         if (symbolId > 100 && symbolId < 8000) {
-            this.tfPays15.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 15).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
-            this.tfPays14.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 14).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
-            this.tfPays13.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 13).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
-            this.tfPays12.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 12).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
-            this.tfPays11.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 11).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
-            this.tfPays10.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 10).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
-            this.tfPays9.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 9).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
-            this.tfPays8.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 8).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
-            this.tfPays7.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 7).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
             this.tfPays6.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 6).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
             this.tfPays5.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 5).reward.line.multiplier * tsyringe_1.container.resolve(SlotMachine_1.default).totalBet * tsyringe_1.container.resolve(Wallet_1.default).coinValue)}`;
+            //this.tfPays4.text = `${this.wallet.getCurrencyValue(sm.findRule(symbolId, 4).reward.line.multiplier * container.resolve(SlotMachine).totalBet * container.resolve(Wallet).coinValue)}`;
             this.updateView(this.width, this['multiplierDescription'].children);
         }
     }
@@ -77882,39 +77406,6 @@ exports["default"] = MobileBrowserLog;
 
 /***/ }),
 
-/***/ 22186:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const pixi_js_1 = __webpack_require__(95894);
-const pixi_stats_1 = __webpack_require__(59340);
-class StatsPanel {
-    static create(application) {
-        const stats = (0, pixi_stats_1.addStats)(document, application);
-        const ticker = pixi_js_1.Ticker.shared;
-        stats.stats.domElement.setAttribute('style', 'position: fixed;\n' +
-            'top: 0;\n' +
-            'left: 0;\n' +
-            'z-index: 500;\n' +
-            'width: max(100px, 5vw, 5vh);\n' +
-            'height: max(60px, 3vh, 3vw);\n' +
-            'opacity: 0.8;\n' +
-            'user-select: none;');
-        Array.from(stats.stats.domElement.children)
-            .forEach((el) => {
-            el.style.width = '100%';
-            el.style.height = '100%';
-        });
-        ticker.add(stats.update, stats, pixi_js_1.UPDATE_PRIORITY.UTILITY);
-    }
-}
-exports["default"] = StatsPanel;
-
-
-/***/ }),
-
 /***/ 63948:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
@@ -78457,7 +77948,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const pixi_js_1 = __webpack_require__(95894);
 const ResizeMethod_1 = __webpack_require__(44764);
-const StatsPanel_1 = __importDefault(__webpack_require__(22186));
 const Screen_1 = __importDefault(__webpack_require__(84641));
 const Logger_1 = __importDefault(__webpack_require__(82669));
 class ScreenPixi extends Screen_1.default {
@@ -78477,7 +77967,7 @@ class ScreenPixi extends Screen_1.default {
         this.view.id = this.id;
         // Display stats if needed
         if (config.debug) {
-            StatsPanel_1.default.create(this.pixi);
+            //StatsPanel.create(this.pixi);
         }
     }
     get view() {

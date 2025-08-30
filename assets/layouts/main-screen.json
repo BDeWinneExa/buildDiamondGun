@@ -701,9 +701,7 @@
                   "customComponentClass":"ValueText"
                 },
                 "params":{
-                  "name":"tfCurrentWinValue",
-                  "pivotX":100,
-                  "pivotY":50
+                  "name":"tfCurrentWinValue"
                 }
               }
             ],
@@ -1949,9 +1947,7 @@
                   "customComponentClass":"ValueText"
                 },
                 "params":{
-                  "name":"tfCurrentWinValue",
-                  "pivotX":100,
-                  "pivotY":50
+                  "name":"tfCurrentWinValue"
                 }
               }
             ],
