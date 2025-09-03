@@ -2,34 +2,34 @@
   "layouts": [
     {
       "name": "loading-screen",
-      "url": "./layouts/loading-screen.json?v=0.0.10.1756575485287"
+      "url": "./layouts/loading-screen.json?v=0.0.10.1756897469865"
     }
   ],
   "textures": [
     {
       "name": "loading",
-      "url": "./images/loading-screen/loading.json?v=0.0.10.1756575485287"
+      "url": "./images/loading-screen/loading.json?v=0.0.10.1756897469865"
     }
   ],
   "sounds": [],
   "spine": [
     {
       "name": "loading-screen-desktop",
-      "url": "./spine/loading/desktop/diamond_gun.json?v=0.0.10.1756575485287"
+      "url": "./spine/loading/desktop/diamond_gun.json?v=0.0.10.1756897469865"
     },
     {
       "name": "loading-screen-mobile",
-      "url": "./spine/loading/mobile/diamond_gun.json?v=0.0.10.1756575485287"
+      "url": "./spine/loading/mobile/diamond_gun.json?v=0.0.10.1756897469865"
     }
   ],
   "fonts": [
     {
       "name": "AlbertSans",
-      "url": "./fonts/AlbertSans-Black.woff?v=0.0.10.1756575485287"
+      "url": "./fonts/AlbertSans-Black.woff?v=0.0.10.1756897469865"
     },
     {
       "name": "LongdonDecorative",
-      "url": "./fonts/LongdonDecorative.ttf?v=0.0.10.1756575485287"
+      "url": "./fonts/LongdonDecorative.ttf?v=0.0.10.1756897469865"
     }
   ]
 }
